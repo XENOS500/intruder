@@ -7,63 +7,113 @@
     border-radius: 0px !important;
   }
   body {
-    background-color: #FDFBF7;
+    background-color: #FFFDF5;
     color: #000000;
   }
 }
 
-/* Neubrutalist Design Tokens */
+/* Neubrutalism.com Micro Dot Pattern */
+.pattern-dots {
+  background-image: radial-gradient(#000000 1.2px, transparent 1.2px);
+  background-size: 16px 16px;
+}
+
+.pattern-dots-sm {
+  background-image: radial-gradient(#000000 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+/* Neubrutalist Cards & Boxes */
 .brutal-card {
   background-color: #FFFFFF;
   border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 5px 5px 0px #000000;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .brutal-card-hover:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #000000;
+  box-shadow: 7px 7px 0px #000000;
 }
 
+/* Canonical Neubrutalism Tinted Box Variations */
+.brutal-box-yellow {
+  background-color: #FFF9E6;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.brutal-box-pink {
+  background-color: #FFEBEB;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.brutal-box-blue {
+  background-color: #E8F4FD;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.brutal-box-green {
+  background-color: #EAF8EE;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.brutal-box-purple {
+  background-color: #F2EFFF;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.brutal-box-orange {
+  background-color: #FFF3E8;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+}
+
+/* Neubrutalist Buttons */
 .brutal-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 5px 5px 0px #000000;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   padding: 0.75rem 1.5rem;
   cursor: pointer;
   user-select: none;
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .brutal-btn:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #000000;
+  box-shadow: 7px 7px 0px #000000;
 }
 
 .brutal-btn:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px #000000;
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px #000000;
 }
 
 .brutal-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
   box-shadow: 2px 2px 0px #000000;
 }
 
+/* Neubrutalism Canonical Button Palette */
 .brutal-btn-yellow {
-  background-color: #FFEB3B;
+  background-color: #FFD23F;
   color: #000000;
 }
 
-.brutal-btn-green {
-  background-color: #4CAF50;
-  color: #FFFFFF;
+.brutal-btn-pink {
+  background-color: #FF6B6B;
+  color: #000000;
 }
 
 .brutal-btn-red {
@@ -71,13 +121,23 @@
   color: #FFFFFF;
 }
 
+.brutal-btn-green {
+  background-color: #88D498;
+  color: #000000;
+}
+
 .brutal-btn-blue {
-  background-color: #2196F3;
-  color: #FFFFFF;
+  background-color: #74B9FF;
+  color: #000000;
 }
 
 .brutal-btn-orange {
-  background-color: #FF9800;
+  background-color: #FFA552;
+  color: #000000;
+}
+
+.brutal-btn-purple {
+  background-color: #B8A9FA;
   color: #000000;
 }
 
@@ -86,23 +146,30 @@
   color: #000000;
 }
 
+.brutal-btn-dark {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+/* Inputs */
 .brutal-input {
   background-color: #FFFFFF;
   color: #000000;
   border: 3px solid #000000;
-  box-shadow: 3px 3px 0px #000000;
+  box-shadow: 4px 4px 0px #000000;
   padding: 0.75rem 1rem;
   font-family: 'JetBrains Mono', monospace;
   font-size: 1rem;
   outline: none;
-  transition: background-color 0.1s ease;
+  transition: background-color 0.1s ease, box-shadow 0.1s ease;
 }
 
 .brutal-input:focus {
-  background-color: #FFFDE7;
-  box-shadow: 4px 4px 0px #000000;
+  background-color: #FFF9E6;
+  box-shadow: 5px 5px 0px #000000;
 }
 
+/* Neubrutalist Badges */
 .brutal-badge {
   display: inline-flex;
   align-items: center;
@@ -112,22 +179,57 @@
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
-  padding: 0.2rem 0.5rem;
+  padding: 0.25rem 0.6rem;
 }
 
-/* Neubrutalist custom scrollbar */
+.badge-yellow {
+  background-color: #FFD23F;
+  color: #000000;
+}
+
+.badge-pink {
+  background-color: #FF6B6B;
+  color: #000000;
+}
+
+.badge-blue {
+  background-color: #74B9FF;
+  color: #000000;
+}
+
+.badge-green {
+  background-color: #88D498;
+  color: #000000;
+}
+
+.badge-purple {
+  background-color: #B8A9FA;
+  color: #000000;
+}
+
+.badge-orange {
+  background-color: #FFA552;
+  color: #000000;
+}
+
+.badge-black {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #FDFBF7;
+  background: #FFFDF5;
   border-left: 2px solid #000000;
 }
 ::-webkit-scrollbar-thumb {
   background: #000000;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #FFEB3B;
+  background: #FFD23F;
   border: 2px solid #000000;
 }

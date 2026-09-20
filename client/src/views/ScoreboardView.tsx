@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import type { RoomState } from '../types';
 import confetti from 'canvas-confetti';
-import { Trophy, Crown, UserX, RotateCw, Users, ArrowRight } from 'lucide-react';
+import { Trophy, Crown, UserX, RotateCw, Users, ArrowRight, ShieldCheck, Skull } from 'lucide-react';
 
 interface ScoreboardViewProps {
   roomState: RoomState;
@@ -41,84 +41,110 @@ export const ScoreboardView: React.FC<ScoreboardViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-      {/* Massive Outcome Banner */}
+      {/* Massive Outcome Banner (Neubrutalism.com High-Contrast Style) */}
       <div
-        className={`brutal-card p-8 text-center border-4 ${
-          isCitizenVictory ? 'bg-brutal-green text-white' : 'bg-brutal-red text-white'
+        className={`brutal-card p-6 sm:p-8 text-center relative overflow-hidden ${
+          isCitizenVictory ? 'bg-brutal-green text-black' : 'bg-brutal-pink text-black'
         }`}
       >
-        <div className="inline-flex p-3 bg-black text-white border-2 border-white shadow-brutal-sm mb-4">
-          <Trophy size={48} className={isCitizenVictory ? 'text-brutal-yellow' : 'text-brutal-red'} />
+        <div className="pattern-dots absolute inset-0 opacity-20 pointer-events-none" />
+        <div className="relative z-10">
+          <div
+            className={`inline-flex p-3.5 border-3 border-black shadow-brutal mb-4 ${
+              isCitizenVictory ? 'bg-brutal-yellow text-black' : 'bg-brutal-red text-white'
+            }`}
+          >
+            {isCitizenVictory ? (
+              <ShieldCheck size={48} className="stroke-[2.5]" />
+            ) : (
+              <Skull size={48} className="stroke-[2.5]" />
+            )}
+          </div>
+          <div>
+            <span className="brutal-badge badge-black text-xs mb-3">
+              TURN OUTCOME FINALIZED
+            </span>
+          </div>
+          <h1 className="font-display font-black text-3xl sm:text-5xl uppercase tracking-tight mb-3 drop-shadow-[2px_2px_0_#FFFFFF]">
+            {result.winnerLabel}
+          </h1>
+          <p className="font-mono text-sm max-w-xl mx-auto font-bold bg-white/95 border-2 border-black p-3 shadow-brutal-sm text-black">
+            {isCitizenVictory
+              ? `The Citizens accurately saw through the deception and eliminated @${result.intruderUsername}!`
+              : `The Intruder (@${result.intruderUsername}) successfully blended in and misled the citizens!`}
+          </p>
         </div>
-        <div className="font-mono font-black text-sm uppercase tracking-widest mb-2 opacity-90">
-          TURN OUTCOME FINALIZED
-        </div>
-        <h1 className="font-display font-black text-3xl sm:text-5xl uppercase tracking-tight mb-2 drop-shadow-[3px_3px_0_#000000]">
-          {result.winnerLabel}
-        </h1>
-        <p className="font-mono text-sm max-w-xl mx-auto font-bold opacity-95">
-          {isCitizenVictory
-            ? `The Citizens accurately saw through the deception and eliminated @${result.intruderUsername}!`
-            : `The Intruder (@${result.intruderUsername}) successfully blended in and misled the citizens!`}
-        </p>
       </div>
 
-      {/* Reveal Matrix */}
-      <div className="brutal-card bg-white p-6">
-        <h2 className="font-display font-black text-xl uppercase mb-4 border-b-2 border-black pb-2">
-          THE REVEAL MATRIX
-        </h2>
+      {/* The Reveal Matrix (Lavender Container with Bento Boxes) */}
+      <div className="brutal-box-purple p-6 relative overflow-hidden">
+        <div className="flex items-center justify-between border-b-3 border-black pb-3 mb-5">
+          <h2 className="font-display font-black text-xl sm:text-2xl uppercase flex items-center gap-2">
+            <Trophy size={24} className="text-black" /> THE REVEAL MATRIX
+          </h2>
+          <span className="brutal-badge badge-yellow text-xs font-mono">
+            ALL ROLES UNMASKED
+          </span>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-sm">
-          {/* Identity Reveals */}
-          <div className="border-2 border-black p-4 bg-canvas space-y-3">
-            <div className="flex items-center justify-between border-b border-gray-300 pb-2">
-              <span className="text-gray-600 font-bold flex items-center gap-1.5">
-                <Crown size={16} className="text-brutal-orange" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-mono text-sm">
+          {/* Identity Reveals (Yellow Box) */}
+          <div className="brutal-box-yellow p-5 space-y-3">
+            <div className="font-mono text-xs font-black uppercase text-black mb-1 flex items-center gap-1.5">
+              <span>KEY IDENTITIES</span>
+            </div>
+
+            <div className="bg-white border-2 border-black p-3 shadow-brutal-sm flex items-center justify-between">
+              <span className="font-bold flex items-center gap-2 text-xs">
+                <Crown size={18} className="text-brutal-orange" />
                 THE GOD:
               </span>
-              <span className="font-black text-base bg-brutal-yellow px-2 py-0.5 border border-black">
+              <span className="font-black text-sm brutal-badge badge-yellow">
                 @{result.godUsername}
               </span>
             </div>
 
-            <div className="flex items-center justify-between border-b border-gray-300 pb-2">
-              <span className="text-gray-600 font-bold flex items-center gap-1.5">
-                <UserX size={16} className="text-brutal-red" />
+            <div className="bg-white border-2 border-black p-3 shadow-brutal-sm flex items-center justify-between">
+              <span className="font-bold flex items-center gap-2 text-xs">
+                <UserX size={18} className="text-brutal-red" />
                 THE INTRUDER:
               </span>
-              <span className="font-black text-base bg-brutal-pink text-red-900 px-2 py-0.5 border border-black">
+              <span className="font-black text-sm brutal-badge badge-pink">
                 @{result.intruderUsername}
               </span>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 font-bold flex items-center gap-1.5">
-                <Users size={16} className="text-brutal-blue" />
+            <div className="bg-white border-2 border-black p-3 shadow-brutal-sm flex items-center justify-between">
+              <span className="font-bold flex items-center gap-2 text-xs">
+                <Users size={18} className="text-brutal-blue" />
                 ACCUSATION TARGET:
               </span>
-              <span className="font-black text-base">
+              <span className="font-black text-sm brutal-badge badge-blue">
                 @{result.mostVotedUsername}
               </span>
             </div>
           </div>
 
-          {/* Secret Words Reveal */}
-          <div className="border-2 border-black p-4 bg-canvas space-y-3">
+          {/* Secret Words Reveal (Sky Blue Box) */}
+          <div className="brutal-box-blue p-5 space-y-3">
+            <div className="font-mono text-xs font-black uppercase text-black mb-1 flex items-center gap-1.5">
+              <span>SECRET WORDS COMPARED</span>
+            </div>
+
             <div>
-              <div className="text-xs font-bold text-green-800 uppercase mb-1">
-                CITIZEN SECRET WORD:
+              <div className="brutal-badge badge-green text-[11px] mb-1.5 font-bold">
+                CITIZEN SECRET WORD
               </div>
-              <div className="font-display font-black text-2xl text-black bg-white p-2 border-2 border-black shadow-brutal-sm uppercase">
+              <div className="brutal-box-green p-3 font-display font-black text-2xl uppercase tracking-wider text-black shadow-brutal-sm">
                 "{result.citizenWord}"
               </div>
             </div>
 
             <div>
-              <div className="text-xs font-bold text-red-800 uppercase mb-1">
-                INTRUDER ALTERNATE WORD:
+              <div className="brutal-badge badge-pink text-[11px] mb-1.5 font-bold">
+                INTRUDER ALTERNATE WORD
               </div>
-              <div className="font-display font-black text-2xl text-black bg-brutal-pink p-2 border-2 border-black shadow-brutal-sm uppercase">
+              <div className="brutal-box-pink p-3 font-display font-black text-2xl uppercase tracking-wider text-black shadow-brutal-sm">
                 "{result.intruderWord}"
               </div>
             </div>
@@ -126,15 +152,18 @@ export const ScoreboardView: React.FC<ScoreboardViewProps> = ({
         </div>
       </div>
 
-      {/* Vote Breakdown & Transcript Recap (2 Cols) */}
+      {/* Vote Breakdown & Transcript Recap (Coral Pink & Mint Green Bento Grids) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Vote Breakdown */}
-        <div className="brutal-card bg-white p-6">
-          <h3 className="font-display font-black text-lg uppercase mb-3 border-b-2 border-black pb-2">
-            VOTE BALLOT BREAKDOWN
-          </h3>
+        {/* Vote Ballot Breakdown (Coral Pink Box) */}
+        <div className="brutal-box-pink p-6">
+          <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
+            <h3 className="font-display font-black text-lg uppercase">
+              VOTE BALLOT BREAKDOWN
+            </h3>
+            <span className="brutal-badge badge-black text-[10px]">TALLY</span>
+          </div>
 
-          <div className="space-y-2 font-mono text-xs">
+          <div className="space-y-2 font-mono text-xs max-h-64 overflow-y-auto pr-1">
             {Object.entries(result.votes || {}).map(([voterId, targetId]) => {
               const voter = roomState.players.find((p) => p.socketId === voterId);
               const target = roomState.players.find((p) => p.socketId === targetId);
@@ -143,16 +172,16 @@ export const ScoreboardView: React.FC<ScoreboardViewProps> = ({
               return (
                 <div
                   key={voterId}
-                  className="p-2.5 border-2 border-black bg-canvas flex items-center justify-between"
+                  className="p-2.5 border-2 border-black bg-white shadow-brutal-sm flex items-center justify-between"
                 >
                   <span className="font-bold">@{voter?.username || 'Player'}</span>
-                  <ArrowRight size={14} className="text-gray-400" />
+                  <ArrowRight size={14} className="text-black stroke-[3]" />
                   <span
-                    className={`font-black px-1.5 py-0.5 border border-black ${
+                    className={
                       wasTargetIntruder
-                        ? 'bg-brutal-green text-white'
-                        : 'bg-white text-black'
-                    }`}
+                        ? 'brutal-badge badge-green text-[11px]'
+                        : 'brutal-badge badge-orange text-[11px]'
+                    }
                   >
                     @{target?.username || 'Target'}
                   </span>
@@ -162,11 +191,14 @@ export const ScoreboardView: React.FC<ScoreboardViewProps> = ({
           </div>
         </div>
 
-        {/* Word History Timeline */}
-        <div className="brutal-card bg-white p-6">
-          <h3 className="font-display font-black text-lg uppercase mb-3 border-b-2 border-black pb-2">
-            WORDS SPOKEN RECAP
-          </h3>
+        {/* Word History Timeline (Mint Green Box) */}
+        <div className="brutal-box-green p-6">
+          <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
+            <h3 className="font-display font-black text-lg uppercase">
+              WORDS SPOKEN RECAP
+            </h3>
+            <span className="brutal-badge badge-black text-[10px]">EVIDENCE</span>
+          </div>
 
           <div className="space-y-2 font-mono text-xs max-h-64 overflow-y-auto pr-1">
             {roomState.submittedWords.map((item, idx) => {
@@ -175,22 +207,26 @@ export const ScoreboardView: React.FC<ScoreboardViewProps> = ({
               return (
                 <div
                   key={idx}
-                  className={`p-2 border-2 border-black flex items-center justify-between ${
-                    isIntruder ? 'bg-brutal-pink' : 'bg-canvas'
+                  className={`p-2.5 border-2 border-black flex items-center justify-between ${
+                    isIntruder
+                      ? 'brutal-box-pink'
+                      : 'bg-white shadow-brutal-sm'
                   }`}
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="bg-black text-white px-1 text-[10px] font-bold">
+                    <span className="bg-black text-white px-1.5 py-0.5 text-[10px] font-bold">
                       R{item.round}
                     </span>
                     <span className="font-bold">@{item.username}</span>
                     {isIntruder && (
-                      <span className="text-[9px] bg-brutal-red text-white px-1 font-bold">
+                      <span className="text-[9px] brutal-badge badge-pink py-0 px-1 font-bold">
                         INTRUDER
                       </span>
                     )}
                   </div>
-                  <span className="font-black text-sm uppercase">"{item.word}"</span>
+                  <span className="font-black text-sm uppercase bg-brutal-yellow-light px-2 py-0.5 border border-black">
+                    "{item.word}"
+                  </span>
                 </div>
               );
             })}
@@ -198,33 +234,36 @@ export const ScoreboardView: React.FC<ScoreboardViewProps> = ({
         </div>
       </div>
 
-      {/* Next Turn Action Footer */}
-      <div className="brutal-card bg-brutal-yellow p-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="font-mono text-xs font-black uppercase text-black">
-            NEXT GOD IN ROTATION:
+      {/* Next Turn Action Footer (Yellow Neubrutalist Box with Dots) */}
+      <div className="brutal-card bg-brutal-yellow p-6 sm:p-7 flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+        <div className="pattern-dots absolute inset-0 opacity-15 pointer-events-none" />
+        <div className="relative z-10">
+          <div className="brutal-badge badge-purple text-xs mb-1.5 font-mono">
+            NEXT GOD IN ROTATION
           </div>
-          <div className="font-display font-black text-2xl uppercase">
+          <div className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight">
             @{nextGodPlayer?.username || 'Next Player'}
           </div>
-          <p className="font-mono text-xs text-gray-800">
+          <p className="font-mono text-xs font-bold text-gray-800 mt-1">
             God role shifts sequentially each turn so everyone gets to orchestrate!
           </p>
         </div>
 
-        {canAdvance ? (
-          <button
-            onClick={onNextTurn}
-            className="brutal-btn brutal-btn-green py-3 px-6 text-base flex items-center gap-2 shadow-brutal-lg"
-          >
-            <RotateCw size={18} />
-            NEXT TURN (ROTATE GOD)
-          </button>
-        ) : (
-          <div className="font-mono text-xs font-bold bg-white border-2 border-black p-3 shadow-brutal-sm">
-            WAITING FOR HOST OR GOD TO ADVANCE...
-          </div>
-        )}
+        <div className="relative z-10">
+          {canAdvance ? (
+            <button
+              onClick={onNextTurn}
+              className="brutal-btn brutal-btn-green py-3.5 px-6 text-base flex items-center gap-2 shadow-brutal-lg font-black tracking-wide"
+            >
+              <RotateCw size={20} className="stroke-[3]" />
+              NEXT TURN (ROTATE GOD)
+            </button>
+          ) : (
+            <div className="brutal-badge badge-black p-3 font-mono text-xs font-bold shadow-brutal-sm">
+              WAITING FOR HOST OR GOD TO ADVANCE...
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
