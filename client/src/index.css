@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-radius: 0px !important;
+  }
+  body {
+    background-color: #FDFBF7;
+    color: #000000;
+  }
+}
+
+/* Neubrutalist Design Tokens */
+.brutal-card {
+  background-color: #FFFFFF;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.brutal-card-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.brutal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.brutal-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.brutal-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.brutal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.brutal-btn-yellow {
+  background-color: #FFEB3B;
+  color: #000000;
+}
+
+.brutal-btn-green {
+  background-color: #4CAF50;
+  color: #FFFFFF;
+}
+
+.brutal-btn-red {
+  background-color: #FF5252;
+  color: #FFFFFF;
+}
+
+.brutal-btn-blue {
+  background-color: #2196F3;
+  color: #FFFFFF;
+}
+
+.brutal-btn-orange {
+  background-color: #FF9800;
+  color: #000000;
+}
+
+.brutal-btn-white {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+.brutal-input {
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0px #000000;
+  padding: 0.75rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  outline: none;
+  transition: background-color 0.1s ease;
+}
+
+.brutal-input:focus {
+  background-color: #FFFDE7;
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.brutal-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+}
+
+/* Neubrutalist custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #FDFBF7;
+  border-left: 2px solid #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFEB3B;
+  border: 2px solid #000000;
+}
