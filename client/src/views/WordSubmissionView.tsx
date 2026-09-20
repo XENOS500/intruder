@@ -184,23 +184,23 @@ export const WordSubmissionView: React.FC<WordSubmissionViewProps> = ({
               </div>
             ) : isMyTurn ? (
               <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-2.5">
                   <input
                     type="text"
                     placeholder="Type single word association..."
                     value={inputWord}
                     onChange={(e) => setInputWord(e.target.value)}
-                    className="brutal-input flex-1 text-lg font-bold"
+                    className="brutal-input flex-1 min-w-0 w-full text-base sm:text-lg font-bold"
                     autoFocus
                     required
                   />
                   <button
                     type="submit"
                     disabled={!inputWord.trim()}
-                    className="brutal-btn brutal-btn-yellow flex items-center gap-1.5 px-4"
+                    className="brutal-btn brutal-btn-yellow flex items-center justify-center gap-1.5 px-5 py-3 sm:py-2.5 shrink-0"
                   >
                     <Send size={18} />
-                    <span>SEND</span>
+                    <span>SEND WORD</span>
                   </button>
                 </div>
                 <p className="font-mono text-[11px] text-gray-500">

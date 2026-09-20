@@ -128,13 +128,13 @@ export const DiscussionChatView: React.FC<DiscussionChatViewProps> = ({
                 placeholder="Debate, accuse or defend your word clue..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                className="brutal-input flex-1 text-sm font-bold"
+                className="brutal-input flex-1 min-w-0 text-sm font-bold"
                 autoFocus
               />
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="brutal-btn brutal-btn-yellow px-4 flex items-center gap-1.5"
+                className="brutal-btn brutal-btn-yellow px-3 sm:px-4 shrink-0 flex items-center gap-1.5"
               >
                 <Send size={16} />
                 <span>SEND</span>
