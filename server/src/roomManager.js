@@ -18,8 +18,9 @@ export class RoomManager {
     return code;
   }
 
-  createRoom(hostSocketId, username, config = {}) {
+  createRoom(hostSocketId, username, config = {}, playerId = null) {
     const roomCode = this.generateRoomCode();
+    const effectivePlayerId = playerId || `p_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newRoom = {
       roomCode,
       config: {
@@ -30,6 +31,7 @@ export class RoomManager {
       players: [
         {
           socketId: hostSocketId,
+          playerId: effectivePlayerId,
           username: username.trim() || 'Host',
           isHost: true,
           isAlive: true,
@@ -48,6 +50,7 @@ export class RoomManager {
       submittedWords: [], // Array<{ socketId, username, round, word, timestamp }>
       discussionTimer: null,
       discussionSecondsLeft: 0,
+      disconnectSkipTimer: null,
       votes: {}, // voterSocketId -> targetSocketId
       messages: [
         {
@@ -79,57 +82,114 @@ export class RoomManager {
     return null;
   }
 
-  joinRoom(roomCode, socketId, username) {
+  joinRoom(roomCode, socketId, username, playerId = null) {
     const room = this.getRoom(roomCode);
     if (!room) {
       throw new Error('Room not found. Check the room code.');
     }
 
-    const existingPlayer = room.players.find((p) => p.socketId === socketId);
-    if (existingPlayer) {
-      existingPlayer.connected = true;
-      existingPlayer.username = username.trim() || existingPlayer.username;
+    const cleanName = (username || '').trim();
+
+    // Clear any pending disconnect skip timer
+    if (room.disconnectSkipTimer) {
+      clearTimeout(room.disconnectSkipTimer);
+      room.disconnectSkipTimer = null;
+    }
+
+    // 1. Check if same socketId is already in room
+    const existingSocketPlayer = room.players.find((p) => p.socketId === socketId);
+    if (existingSocketPlayer) {
+      existingSocketPlayer.connected = true;
+      if (cleanName) existingSocketPlayer.username = cleanName;
+      if (playerId && !existingSocketPlayer.playerId) existingSocketPlayer.playerId = playerId;
       return room;
     }
 
-    // Check if player with same name was disconnected (reconnect handling)
-    const disconnectedPlayer = room.players.find(
-      (p) => !p.connected && p.username.toLowerCase() === username.trim().toLowerCase()
+    // 2. Check if player with same playerId OR matching username is reconnecting
+    // Note: On mobile, p.connected might still be true if socket timeout has not fired yet,
+    // so we match regardless of p.connected!
+    const existingPlayer = room.players.find(
+      (p) =>
+        (playerId && p.playerId && p.playerId === playerId) ||
+        (cleanName && p.username.toLowerCase() === cleanName.toLowerCase())
     );
-    if (disconnectedPlayer) {
-      const oldSocketId = disconnectedPlayer.socketId;
-      disconnectedPlayer.socketId = socketId;
-      disconnectedPlayer.connected = true;
+
+    if (existingPlayer) {
+      const oldSocketId = existingPlayer.socketId;
+      existingPlayer.socketId = socketId;
+      existingPlayer.connected = true;
+      if (cleanName) existingPlayer.username = cleanName;
+      if (playerId && !existingPlayer.playerId) existingPlayer.playerId = playerId;
 
       // Update references if God or Intruder
       if (room.godSocketId === oldSocketId) room.godSocketId = socketId;
       if (room.intruderSocketId === oldSocketId) room.intruderSocketId = socketId;
-      if (room.wordAssignments[oldSocketId]) {
+
+      if (room.wordAssignments && room.wordAssignments[oldSocketId]) {
         room.wordAssignments[socketId] = room.wordAssignments[oldSocketId];
         delete room.wordAssignments[oldSocketId];
       }
-      room.turnOrderQueue.forEach((t) => {
-        if (t.socketId === oldSocketId) t.socketId = socketId;
-      });
 
-      this.addSystemMessage(room, `${disconnectedPlayer.username} reconnected.`);
+      if (room.turnOrderQueue) {
+        room.turnOrderQueue.forEach((t) => {
+          if (t.socketId === oldSocketId) t.socketId = socketId;
+        });
+      }
+
+      if (room.votes) {
+        if (room.votes[oldSocketId]) {
+          room.votes[socketId] = room.votes[oldSocketId];
+          delete room.votes[oldSocketId];
+        }
+        for (const [voter, target] of Object.entries(room.votes)) {
+          if (target === oldSocketId) {
+            room.votes[voter] = socketId;
+          }
+        }
+      }
+
+      this.addSystemMessage(room, `${existingPlayer.username} reconnected.`);
       return room;
     }
 
+    // 3. New player joining: must be in LOBBY
     if (room.state !== TurnState.LOBBY) {
       throw new Error('Game is already in progress. Wait for next game.');
     }
 
+    const effectivePlayerId = playerId || `p_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
     room.players.push({
       socketId,
-      username: username.trim() || `Player ${room.players.length + 1}`,
+      playerId: effectivePlayerId,
+      username: cleanName || `Player ${room.players.length + 1}`,
       isHost: false,
       isAlive: true,
       connected: true,
     });
 
-    this.addSystemMessage(room, `${username.trim()} joined the room.`);
+    this.addSystemMessage(room, `${cleanName || 'A new player'} joined the room.`);
     return room;
+  }
+
+  leaveRoom(roomCode, socketId) {
+    const room = this.getRoom(roomCode);
+    if (!room) return;
+
+    const playerIdx = room.players.findIndex((p) => p.socketId === socketId);
+    if (playerIdx === -1) return;
+
+    const player = room.players[playerIdx];
+    this.addSystemMessage(room, `${player.username} left the room.`);
+    room.players.splice(playerIdx, 1);
+
+    if (player.isHost && room.players.length > 0) {
+      const nextHost = room.players.find((p) => p.connected) || room.players[0];
+      nextHost.isHost = true;
+      this.addSystemMessage(room, `${nextHost.username} is now the host.`);
+    }
+
+    this.broadcastRoomState(room);
   }
 
   updateConfig(roomCode, socketId, newConfig) {
@@ -551,15 +611,24 @@ export class RoomManager {
       if (room.state === TurnState.PLAY_ROUNDS) {
         const currentTurn = room.turnOrderQueue[room.currentSpeakerIndex];
         if (currentTurn && currentTurn.socketId === socketId) {
-          // Auto advance turn
-          this.addSystemMessage(room, `Current speaker disconnected. Advancing turn.`);
-          room.currentSpeakerIndex++;
-          if (room.currentSpeakerIndex < room.turnOrderQueue.length) {
-            room.currentRound = room.turnOrderQueue[room.currentSpeakerIndex].round;
-          } else {
-            this.startDiscussion(room);
-            return;
-          }
+          // Give a 20-second grace period for mobile users to return before auto-skipping
+          this.addSystemMessage(room, `Speaker @${player.username} disconnected. Holding turn for 20s...`);
+          if (room.disconnectSkipTimer) clearTimeout(room.disconnectSkipTimer);
+          room.disconnectSkipTimer = setTimeout(() => {
+            const checkTurn = room.turnOrderQueue[room.currentSpeakerIndex];
+            const checkPlayer = room.players.find((p) => p.socketId === socketId);
+            if (checkTurn && checkTurn.socketId === socketId && checkPlayer && !checkPlayer.connected) {
+              this.addSystemMessage(room, `@${checkPlayer.username} did not reconnect in time. Advancing turn.`);
+              room.currentSpeakerIndex++;
+              if (room.currentSpeakerIndex < room.turnOrderQueue.length) {
+                room.currentRound = room.turnOrderQueue[room.currentSpeakerIndex].round;
+              } else {
+                this.startDiscussion(room);
+                return;
+              }
+              this.broadcastRoomState(room);
+            }
+          }, 20000);
         }
       }
 
@@ -616,17 +685,21 @@ export class RoomManager {
       (p) => p.connected && p.socketId !== room.godSocketId
     ).length;
 
+    const me = room.players.find((p) => p.socketId === socketId);
+
     return {
       roomCode: room.roomCode,
       config: room.config,
       state: room.state,
       players: room.players.map((p) => ({
         socketId: p.socketId,
+        playerId: p.playerId,
         username: p.username,
         isHost: p.isHost,
         isAlive: p.isAlive,
         connected: p.connected,
       })),
+      myPlayerId: me?.playerId || null,
       godSocketId: room.godSocketId,
       godRotationIndex: room.godRotationIndex,
       // PRIVACY BOUNDARY: Reveal intruder socketId ONLY if God or if turn is finished

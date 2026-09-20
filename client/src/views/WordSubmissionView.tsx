@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import type { RoomState } from '../types';
-import { Crown, Send, Eye, UserCheck } from 'lucide-react';
+import { Crown, Send, Eye, UserCheck, ShieldAlert } from 'lucide-react';
 
 interface WordSubmissionViewProps {
   roomState: RoomState;
   socketId: string;
   onSubmitWord: (word: string) => void;
+  onOpenIntruderAlert?: () => void;
 }
 
 export const WordSubmissionView: React.FC<WordSubmissionViewProps> = ({
   roomState,
   socketId,
   onSubmitWord,
+  onOpenIntruderAlert,
 }) => {
   const [inputWord, setInputWord] = useState('');
   const isGod = roomState.godSocketId === socketId;
@@ -121,13 +123,41 @@ export const WordSubmissionView: React.FC<WordSubmissionViewProps> = ({
                   Observe the players' word choices and watch how well the intruder blends in!
                 </p>
               </div>
+            ) : roomState.myRole === 'INTRUDER' ? (
+              /* Intruder Red Warning HUD */
+              <div className="border-4 border-black bg-brutal-red text-white p-6 shadow-brutal-lg">
+                <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4 bg-black px-3 py-1">
+                  <div className="flex items-center gap-1.5 font-mono text-xs font-black text-brutal-yellow uppercase">
+                    <ShieldAlert size={16} />
+                    <span>RED ALERT: YOU ARE THE INTRUDER</span>
+                  </div>
+                  {onOpenIntruderAlert && (
+                    <button
+                      type="button"
+                      onClick={onOpenIntruderAlert}
+                      className="text-xs bg-brutal-yellow text-black px-2 py-0.5 font-bold border border-black hover:bg-white transition"
+                    >
+                      VIEW BRIEF
+                    </button>
+                  )}
+                </div>
+
+                <div className="text-center my-4">
+                  <div className="font-mono text-xs font-bold uppercase text-yellow-200 mb-1">
+                    YOUR SECRET VARIANT PROMPT:
+                  </div>
+                  <div className="bg-white text-black border-3 border-black p-3 font-display font-black text-4xl sm:text-5xl uppercase tracking-wider shadow-brutal inline-block min-w-[240px]">
+                    "{String(roomState.mySecretWord || '...')}"
+                  </div>
+                </div>
+
+                <div className="bg-black/60 border-2 border-white/60 p-2.5 font-mono text-xs text-center font-bold">
+                  ⚠️ ALL OTHER PLAYERS RECEIVED A DIFFERENT WORD! BLEND IN WITH YOUR CLUES!
+                </div>
+              </div>
             ) : (
-              /* If Citizen or Intruder: Show their single word prompt */
-              <div
-                className={`p-6 border-3 border-black text-center shadow-brutal-sm ${
-                  roomState.myRole === 'INTRUDER' ? 'bg-[#FFEBEE]' : 'bg-[#E8F5E9]'
-                }`}
-              >
+              /* Citizen Normal Prompt */
+              <div className="p-6 border-3 border-black text-center shadow-brutal-sm bg-[#E8F5E9]">
                 <div className="font-mono text-xs font-black uppercase text-gray-700 mb-2">
                   YOUR SECRET ASSIGNED WORD IS:
                 </div>
@@ -135,7 +165,7 @@ export const WordSubmissionView: React.FC<WordSubmissionViewProps> = ({
                   "{String(roomState.mySecretWord || '...')}"
                 </div>
                 <p className="font-mono text-xs text-gray-600 mt-4 max-w-md mx-auto">
-                  Give a subtle 1-word clue that matches this word without being too obvious. If you think you're the intruder, try to blend in!
+                  Give a subtle 1-word clue that matches this word without being too obvious. Spot the player who sounds out of place!
                 </p>
               </div>
             )}

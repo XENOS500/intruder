@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { useSocket } from './hooks/useSocket';
 import { Navbar } from './components/Navbar';
 import { LobbyView } from './views/LobbyView';
@@ -6,6 +7,7 @@ import { WordSubmissionView } from './views/WordSubmissionView';
 import { DiscussionChatView } from './views/DiscussionChatView';
 import { VotingView } from './views/VotingView';
 import { ScoreboardView } from './views/ScoreboardView';
+import { IntruderAlertModal } from './components/IntruderAlertModal';
 import { AlertCircle, X } from 'lucide-react';
 
 export function App() {
@@ -17,6 +19,7 @@ export function App() {
     dismissError,
     createRoom,
     joinRoom,
+    leaveRoom,
     updateConfig,
     startGame,
     godAssignRolesAndWords,
@@ -26,10 +29,53 @@ export function App() {
     nextTurn,
   } = useSocket();
 
+  const [showIntruderModal, setShowIntruderModal] = useState<boolean>(false);
+  const alertedTurnRef = useRef<number | null>(null);
+
+  // Automatically trigger the Red Intruder Warning Screen as soon as words are assigned
+  useEffect(() => {
+    if (
+      roomState &&
+      roomState.myRole === 'INTRUDER' &&
+      roomState.state === 'PLAY_ROUNDS' &&
+      alertedTurnRef.current !== roomState.godRotationIndex
+    ) {
+      alertedTurnRef.current = roomState.godRotationIndex;
+      setShowIntruderModal(true);
+    }
+  }, [roomState]);
+
+  // Reset alert ref when returning to lobby or new game
+  useEffect(() => {
+    if (roomState?.state === 'LOBBY' || roomState?.state === 'ROLE_SETUP') {
+      setShowIntruderModal(false);
+    }
+  }, [roomState?.state]);
+
+  const intruderWord =
+    typeof roomState?.mySecretWord === 'string'
+      ? roomState.mySecretWord
+      : typeof roomState?.mySecretWord === 'object' && roomState?.mySecretWord !== null
+      ? roomState.mySecretWord.intruderWord
+      : '';
+
   return (
     <div className="min-h-screen bg-canvas flex flex-col font-sans selection:bg-brutal-yellow selection:text-black">
       {/* Top Persistent Navbar */}
-      <Navbar roomState={roomState} connected={connected} socketId={socketId} />
+      <Navbar
+        roomState={roomState}
+        connected={connected}
+        socketId={socketId}
+        onLeaveRoom={leaveRoom}
+        onOpenIntruderAlert={() => setShowIntruderModal(true)}
+      />
+
+      {/* Red Intruder Warning Screen / Modal */}
+      <IntruderAlertModal
+        isOpen={showIntruderModal}
+        onClose={() => setShowIntruderModal(false)}
+        secretWord={intruderWord}
+      />
 
       {/* Brutalist Error Notification Banner */}
       {errorToast && (
@@ -71,6 +117,7 @@ export function App() {
             roomState={roomState}
             socketId={socketId}
             onSubmitWord={submitWord}
+            onOpenIntruderAlert={() => setShowIntruderModal(true)}
           />
         ) : roomState.state === 'DISCUSSION' ? (
           <DiscussionChatView

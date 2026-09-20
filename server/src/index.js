@@ -78,14 +78,15 @@ io.on('connection', (socket) => {
   console.log(`[Socket Connected] ID: ${socket.id}`);
 
   // Create Room
-  socket.on('createRoom', ({ username, config }, callback) => {
+  socket.on('createRoom', ({ username, config, playerId }, callback) => {
     try {
-      const room = roomManager.createRoom(socket.id, username, config);
+      const room = roomManager.createRoom(socket.id, username, config, playerId);
       socket.join(room.roomCode);
 
       const state = roomManager.getSanitizedState(room, socket.id);
+      const creator = room.players.find((p) => p.socketId === socket.id);
       if (typeof callback === 'function') {
-        callback({ success: true, roomCode: room.roomCode, state });
+        callback({ success: true, roomCode: room.roomCode, state, playerId: creator?.playerId });
       }
       socket.emit('roomStateUpdate', state);
       console.log(`[Room Created] Code: ${room.roomCode} by ${username} (${socket.id})`);
@@ -97,23 +98,34 @@ io.on('connection', (socket) => {
   });
 
   // Join Room
-  socket.on('joinRoom', ({ roomCode, username }, callback) => {
+  socket.on('joinRoom', ({ roomCode, username, playerId }, callback) => {
     try {
       const cleanCode = (roomCode || '').trim().toUpperCase();
-      const room = roomManager.joinRoom(cleanCode, socket.id, username);
+      const room = roomManager.joinRoom(cleanCode, socket.id, username, playerId);
       socket.join(room.roomCode);
 
       const state = roomManager.getSanitizedState(room, socket.id);
+      const player = room.players.find((p) => p.socketId === socket.id);
       if (typeof callback === 'function') {
-        callback({ success: true, roomCode: room.roomCode, state });
+        callback({ success: true, roomCode: room.roomCode, state, playerId: player?.playerId });
       }
 
       roomManager.broadcastRoomState(room);
-      console.log(`[Player Joined] Room: ${cleanCode}, User: ${username} (${socket.id})`);
+      console.log(`[Player Joined/Reconnected] Room: ${cleanCode}, User: ${player?.username || username} (${socket.id})`);
     } catch (err) {
       console.error(`[Error joinRoom]`, err.message);
       if (typeof callback === 'function') callback({ success: false, error: err.message });
       socket.emit('errorMessage', { message: err.message });
+    }
+  });
+
+  // Leave Room explicitly
+  socket.on('leaveRoom', ({ roomCode }) => {
+    try {
+      roomManager.leaveRoom(roomCode, socket.id);
+      socket.leave(roomCode);
+    } catch (err) {
+      console.error(`[Error leaveRoom]`, err.message);
     }
   });
 

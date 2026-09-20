@@ -10,6 +10,7 @@ export type PlayerRole = 'GOD' | 'INTRUDER' | 'CITIZEN';
 
 export interface Player {
   socketId: string;
+  playerId?: string;
   username: string;
   isHost: boolean;
   isAlive: boolean;
@@ -62,6 +63,7 @@ export interface RoomState {
   godRotationIndex: number;
   intruderSocketId: string | null;
   myRole: PlayerRole;
+  myPlayerId?: string | null;
   mySecretWord: string | { citizenWord: string; intruderWord: string } | null;
   currentRound: number;
   turnOrderQueue: Array<{ socketId: string; round: number }>;

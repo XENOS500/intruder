@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import type { RoomState } from '../types';
-import { Copy, Check, Crown, Wifi, WifiOff } from 'lucide-react';
+import { Copy, Check, Crown, Wifi, WifiOff, LogOut, ShieldAlert } from 'lucide-react';
 
 interface NavbarProps {
   roomState: RoomState | null;
   connected: boolean;
   socketId: string;
+  onLeaveRoom?: () => void;
+  onOpenIntruderAlert?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ roomState, connected, socketId }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  roomState,
+  connected,
+  socketId,
+  onLeaveRoom,
+  onOpenIntruderAlert,
+}) => {
   const [copied, setCopied] = useState(false);
 
   const copyRoomCode = () => {
@@ -41,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({ roomState, connected, socketId }
   };
 
   return (
-    <header className="w-full bg-white border-b-4 border-black px-4 py-3 sticky top-0 z-50">
+    <header className="w-full bg-white border-b-4 border-black px-4 py-3 sticky top-0 z-40">
       <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
         {/* Logo / Brand */}
         <div className="flex items-center gap-2">
@@ -58,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({ roomState, connected, socketId }
 
         {/* Room & Game Info */}
         {roomState ? (
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Room Code with Copy */}
             <button
               onClick={copyRoomCode}
@@ -74,6 +82,18 @@ export const Navbar: React.FC<NavbarProps> = ({ roomState, connected, socketId }
             <div className={`brutal-badge ${getPhaseBadgeColor(roomState.state)}`}>
               {roomState.state.replace('_', ' ')}
             </div>
+
+            {/* Intruder Warning Pill in Navbar */}
+            {roomState.myRole === 'INTRUDER' && roomState.state !== 'LOBBY' && (
+              <button
+                onClick={onOpenIntruderAlert}
+                className="flex items-center gap-1 brutal-badge bg-brutal-red text-white border-2 border-black animate-pulse hover:bg-black transition cursor-pointer"
+                title="Click to view Intruder Warning & Secret Word"
+              >
+                <ShieldAlert size={12} />
+                <span>INTRUDER (VIEW)</span>
+              </button>
+            )}
 
             {/* God Indicator Badge */}
             {godPlayer && (
@@ -94,6 +114,18 @@ export const Navbar: React.FC<NavbarProps> = ({ roomState, connected, socketId }
                   </span>
                 )}
               </div>
+            )}
+
+            {/* Leave Room Button */}
+            {onLeaveRoom && (
+              <button
+                onClick={onLeaveRoom}
+                title="Leave room and return to menu"
+                className="flex items-center gap-1 bg-white hover:bg-red-50 text-red-700 border-2 border-black px-2 py-0.5 font-mono text-xs font-bold shadow-brutal-sm active:translate-x-[1px] active:translate-y-[1px]"
+              >
+                <LogOut size={12} />
+                <span className="hidden sm:inline">LEAVE</span>
+              </button>
             )}
           </div>
         ) : (
